@@ -81,7 +81,7 @@ void MainWindow::runMultiplicationTask(int first, int second, int duration)
 {
     auto start = std::chrono::steady_clock::now();
     auto finish = start + std::chrono::seconds(duration);
-    constexpr double softCap = (std::numeric_limits<double>::max() /1e3);
+    constexpr double softCap = (std::numeric_limits<double>::max() /1e3); // Ограничить число e305
 
     {
         std::lock_guard<std::mutex> lock(interMtx);
@@ -101,10 +101,22 @@ void MainWindow::runMultiplicationTask(int first, int second, int duration)
             std::lock_guard<std::mutex> lock(interMtx);
             interRes *= second;
             // Защита от переполнения, double поддерживает максимум порядка e308
-            if(interRes > softCap)
+
+            if (interRes > 0)
             {
-                interRes = softCap;
+                if(interRes > softCap)
+                {
+                    interRes = softCap;
+                }
             }
+            else
+            {
+                if (interRes < -softCap)
+                {
+                    interRes = -softCap;
+                }
+            }
+
         }
 
         logToFile( QString::number(interRes) );
