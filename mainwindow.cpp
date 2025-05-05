@@ -86,6 +86,7 @@ void MainWindow::runMultiplicationTask(int first, int second, int duration)
     {
         std::lock_guard<std::mutex> lock(interMtx);
         interRes = (double)first*second;
+        logToFile( QString::number(interRes) );
     }
 
     while (finish > std::chrono::steady_clock::now())
